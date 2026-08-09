@@ -56,8 +56,9 @@ ever mentioned to them.
    ready to answer and to quote from. This is the "saves emails and phone calls" value, aimed at Hans
    and Ragna. **Not** self-serve booking: a 450-guest wedding in Stapi is a consultative sale with
    catering and dates, and pretending otherwise would be wrong for their business.
-2. **Phone.** Their current front page headline clips off the side of the screen. This build is
-   measured clean at 390px, and phones never download the 4.9 MB film.
+2. **Phone.** Their site is not broken on mobile (measured: zero overflow at 390px, headline uncropped),
+   so do NOT pitch it as broken. The gain is weight and focus: this build is measured clean at 390px and
+   phones never download the 4.9 MB film, they get a 45 KB poster instead.
 3. **SEO.** `schema.org/Event` structured data per gig is how Google surfaces event listings. Their
    current site has no `<h1>` at all.
 
@@ -93,9 +94,13 @@ ever mentioned to them.
 - **Link:** https://sindrimar02.github.io/hljomaholl-preview/
 - Plural (þið/ykkur) because it is an organisation with several staff.
 
-**Re-verify immediately before sending** ([[feedback-fact-check-before-drafting]]): that the front-page
-headline still clips and the newsletter modal still behaves as described. Both were true on 2026-08-08;
-a site edit could fix either at any time and the claim would then be wrong.
+**Re-verified 2026-08-08 against the live site, and ONE CLAIM WAS KILLED.** The draft originally said the
+front-page headline does not fit the screen. **That is false:** measured at 1440px it sits at 606..1320 of
+1440 with zero document overflow, and at 390px it is also uncropped with zero overflow. What I had actually
+seen was the newsletter modal *covering* the headline, which I misread as clipping. Removed.
+**What IS verified and safe to state:** the póstlisti modal opens over the page content on both desktop and
+phone (it covers the centre point of the viewport in both) and it does not close on Escape. Re-check this
+one again immediately before sending, since they could edit it at any time.
 
 ```
 Góðan dag,
@@ -103,11 +108,11 @@ Góðan dag,
 Ég heiti Sindri og hanna vefsíður fyrir íslensk menningarhús og ferðaþjónustufyrirtæki.
 
 Hljómahöll er magnað hús. Rokksafn Íslands, Stapi og dagskrá sem heldur áfram allt haustið, allt undir
-sama þaki. Það eina sem ég staldraði við var vefurinn sjálfur. Fyrirsögnin á forsíðunni nær ekki inn á
-skjáinn hjá mér, og glugginn með póstlistanum leggst yfir efnið.
+sama þaki. Mér fannst vefurinn ekki alveg gera húsinu skil. Glugginn með póstlistanum opnast til dæmis
+strax yfir efnið, bæði í síma og tölvu.
 
-Mér fannst synd að húsið kæmi ekki betur til skila, svo ég settist niður og hannaði frumgerð að nýrri
-forsíðu fyrir ykkur. Þetta kostar ykkur ekki neitt og því fylgir engin skuldbinding.
+Svo ég settist niður og hannaði frumgerð að nýrri forsíðu fyrir ykkur. Þetta kostar ykkur ekki neitt og
+því fylgir engin skuldbinding.
 
 Hana má skoða hér hvenær sem er, og hún virkar vel í síma:
 https://sindrimar02.github.io/hljomaholl-preview/
