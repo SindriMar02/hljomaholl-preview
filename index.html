@@ -1,0 +1,1364 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Hljómahöll | Hjarta menningar í Reykjanesbæ</title>
+<meta name="description" content="Frumgerð: Hljómahöll í Reykjanesbæ. Tónleikar, ráðstefnur, veislur, Rokksafn Íslands.">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="256x256" href="assets/favicon-256.png">
+<link rel="apple-touch-icon" href="assets/favicon-256.png">
+<link rel="preload" href="fonts/OverusedGrotesk-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ChivoMono-Variable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/hero-poster.webp" as="image">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css">
+<script>document.documentElement.classList.add('hh-js');</script>
+<style>
+/* ============ HLJÓMAHÖLL prototype - No Art system transplant ============
+   Reference: noartmusic.com (Awwwards SOTD 2026-08-06, studio BORING)
+   All motion values from the reference's shipped source (Slater modules).
+   Prefix: hh-  (no style bleed) */
+
+@font-face{font-family:'Overused Grotesk';src:url('fonts/OverusedGrotesk-SemiBold.woff2') format('woff2');font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:'Overused Grotesk';src:url('fonts/OverusedGrotesk-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Chivo Mono';src:url('fonts/ChivoMono-Variable.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+
+:root{
+  --hh-white:#ffffff;
+  --hh-black:#000000;
+  --hh-red:#C4091E;        /* sampled from Berg hall seating, their own red */
+  --hh-red-lift:#FF3B33;   /* lifted variant for text on dark grounds */
+  --hh-grey:#6b6b6b;
+  --hh-display:'Overused Grotesk',Arial,sans-serif;
+  --hh-mono:'Chivo Mono','JetBrains Mono',monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--hh-black);color-scheme:light}
+:focus-visible{outline:2px solid var(--hh-red-lift);outline-offset:3px}
+body{
+  background:var(--hh-white);color:var(--hh-black);
+  font-family:var(--hh-mono);font-size:12px;line-height:1.2;font-weight:400;
+  text-transform:uppercase;-webkit-font-smoothing:antialiased;
+}
+.hh-js body.hh-loading{overflow:hidden}
+img,video{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;text-transform:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ---------- type registers ---------- */
+.hh-display{
+  font-family:var(--hh-display);font-weight:600;text-transform:uppercase;
+  font-size:clamp(30px,3.34vw,48px);line-height:1;letter-spacing:-.03em;text-align:left;
+}
+.hh-mono-block{text-align:justify;font-size:12px;line-height:1.2}
+.hh-label{font-size:12px;line-height:1.2}
+.hh-label .hh-sq,.hh-nav-group .hh-sq{display:inline-block;width:.5em;height:.5em;background:currentColor;margin-right:.6em;vertical-align:middle}
+
+/* ---------- marker overlay (page scale) : mix-blend difference ---------- */
+.hh-marker-overlay{
+  position:fixed;inset:0;z-index:950;pointer-events:none;color:var(--hh-white);
+  mix-blend-mode:difference;padding:1.25em;display:flex;justify-content:center;align-items:center;
+  opacity:0;
+}
+html:not(.hh-js) .hh-marker-overlay{opacity:1}
+.hh-mk{position:absolute;width:.625em;height:.625em}
+.hh-mk svg{display:block;width:100%;height:100%}
+.hh-mk.tl{top:1.25em;left:1.25em}.hh-mk.tr{top:1.25em;right:1.25em}
+.hh-mk.bl{bottom:1.25em;left:1.25em}.hh-mk.br{bottom:1.25em;right:1.25em}
+.hh-mk.cl,.hh-mk.cr{height:1.1875em}
+.hh-mk.cl{left:1.25em;top:50%;transform:translateY(-50%)}
+.hh-mk.cr{right:1.25em;top:50%;transform:translateY(-50%)}
+
+/* thumbnail-scale markers */
+.hh-thumb-markers{position:absolute;inset:0;z-index:2;pointer-events:none;color:var(--hh-white);mix-blend-mode:difference}
+.hh-tm{position:absolute;width:.625em;height:.625em}
+.hh-tm.tl{top:0;left:0}.hh-tm.tr{top:0;right:0}.hh-tm.bl{bottom:0;left:0}.hh-tm.br{bottom:0;right:0}
+
+/* ---------- cursor ---------- */
+.hh-cursor{
+  position:fixed;top:0;left:0;z-index:1200;pointer-events:none;display:none;
+}
+@media (hover:hover) and (pointer:fine){.hh-js .hh-cursor{display:block}}
+.hh-cursor-bubble{
+  display:flex;align-items:center;gap:.375em;background:var(--hh-red);color:var(--hh-white);
+  padding:.55em .8em;border-radius:2px;font-size:11px;white-space:nowrap;
+  opacity:0;transform:translate(12px,14px);transition:opacity .18s ease;
+}
+.hh-cursor[data-cursor="active"] .hh-cursor-bubble{opacity:1}
+.hh-cursor[data-cursor="active-edge"] .hh-cursor-bubble{opacity:1;transform:translate(calc(-100% - 12px),14px)}
+
+/* ---------- navbar : scattered stacked label groups ---------- */
+.hh-navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:1.55em 2em 1em;color:var(--hh-white);mix-blend-mode:difference;
+}
+.hh-navbar-logo img{height:34px;width:auto}
+.hh-nav-groups{display:none;gap:5.5em}
+@media (min-width:900px){.hh-nav-groups{display:flex}}
+.hh-nav-group{display:flex;flex-direction:column;gap:.55em;align-items:flex-start}
+.hh-nav-group a{display:inline-block}
+.hh-menu-btn{
+  mix-blend-mode:normal;background:var(--hh-black);color:var(--hh-white);
+  padding:.8em 1.1em;letter-spacing:.02em;
+}
+.hh-menu-btn .hh-sq{display:inline-block;width:.5em;height:.5em;background:var(--hh-white);margin-right:.6em;vertical-align:middle}
+
+/* ---------- menu (scale-pop) ---------- */
+.hh-menu-wrapper{
+  position:fixed;inset:0;z-index:1100;display:none;opacity:0;
+  background:rgba(0,0,0,.55);
+}
+.hh-menu-wrapper.is-open{display:flex}
+.hh-menu{
+  margin:auto;background:var(--hh-black);color:var(--hh-white);
+  padding:3em 3.4em;min-width:min(480px,92vw);transform:scale(0);
+}
+.hh-menu-list{list-style:none;display:flex;flex-direction:column;gap:1.15em;margin:1.8em 0 2.2em}
+.hh-menu-list a{font-family:var(--hh-display);font-weight:600;font-size:clamp(22px,3vw,34px);line-height:1;letter-spacing:-.02em}
+.hh-menu-list a:hover{color:var(--hh-red-lift)}
+.hh-menu-meta{display:flex;flex-direction:column;gap:.5em;color:#bbb}
+.hh-menu-close{color:var(--hh-white);padding:.4em 0}
+
+/* ---------- loader / aperture ---------- */
+.hh-loader{
+  position:fixed;inset:0;z-index:1050;background:var(--hh-white);color:var(--hh-black);
+  display:none;
+}
+.hh-js .hh-loader{display:block}
+.hh-loader-text-wrapper{position:absolute;bottom:1.6em;left:2em;display:flex;gap:2.2em}
+.hh-loader-item{opacity:0}
+.hh-loader-bar{position:absolute;bottom:0;left:0;height:2px;background:var(--hh-black);width:0}
+
+/* ---------- hero ---------- */
+.hh-hero{
+  position:relative;height:100svh;background:var(--hh-black);color:var(--hh-white);
+  overflow:hidden;
+}
+.hh-hero-frame{
+  position:absolute;top:50%;left:50%;z-index:1;overflow:hidden;
+  transform:translate(-50%,-50%);width:100vw;height:100svh;
+}
+.hh-hero-media{position:absolute;left:0;width:100%;height:120%;top:auto;bottom:0}
+.hh-hero-media video,.hh-hero-media img{width:100%;height:100%;object-fit:cover}
+.hh-hero-logo{
+  position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.hh-hero-logo-box{position:relative;padding:2.2em 2.8em}
+.hh-hero-logo-box img{width:min(46vw,560px);height:auto}
+.hh-hero-bottom{
+  position:absolute;left:0;right:0;bottom:0;z-index:4;
+  display:flex;justify-content:space-between;align-items:flex-end;gap:2em;
+  padding:0 2em 2em;
+}
+.hh-hero-intro{max-width:34ch}
+.hh-hero-intro .hh-label{color:#b5b5b5;margin-bottom:1em}
+.hh-next{
+  transition:background-color .25s ease;
+  display:flex;gap:1.2em;align-items:center;background:rgba(0,0,0,.55);padding:1em;
+  max-width:420px;
+}
+.hh-next-thumb{position:relative;width:104px;flex:none}
+.hh-next-thumb img{width:100%;height:auto}
+.hh-next-info .hh-label{color:#b5b5b5;margin-bottom:.7em}
+.hh-next:hover{background:rgba(0,0,0,.8)}
+.hh-next-info p{font-size:13px;line-height:1.35}
+@media (max-width:767px){
+  .hh-hero-bottom{flex-direction:column;align-items:stretch}
+  .hh-next{max-width:none}
+  .hh-hero-logo-box img{width:72vw}
+}
+
+/* ---------- generic section chrome ---------- */
+.hh-section{position:relative;padding:9em 2em}
+.hh-section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3.2em;gap:2em}
+.hh-rich{max-width:62ch;font-size:12px;line-height:1.5;text-align:justify}
+.hh-rich p+p{margin-top:1.2em}
+
+/* ---------- manifesto ---------- */
+.hh-manifesto{background:var(--hh-white);padding-top:11em}
+.hh-manifesto .hh-display{max-width:22ch;margin-bottom:2.4em}
+.hh-manifesto .hh-label{margin-bottom:2.6em}
+
+/* ---------- dagskrá ---------- */
+.hh-dagskra{background:var(--hh-black);color:var(--hh-white);overflow:hidden}
+.hh-dagskra .hh-section-head{margin-bottom:4em}
+.hh-swiper{overflow:visible}
+.hh-swiper .swiper-slide{width:auto;position:relative}
+.hh-swiper .swiper-slide-active{z-index:2}
+@property --hh-ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+.hh-event-card{
+  position:relative;width:100%;opacity:.5;
+  transition:transform .35s cubic-bezier(.22,1,.36,1),opacity .35s ease;
+}
+.hh-event-card .hh-event-art img{filter:saturate(.5);transition:filter .35s ease}
+.swiper-slide-active .hh-event-card{transform:scale(1.02);opacity:1}
+.swiper-slide-active .hh-event-card .hh-event-art img{filter:none}
+/* selected: the reticle locks on (solid frame + red brackets) */
+.swiper-slide-active .hh-event-art{box-shadow:0 0 0 2px var(--hh-red-lift)}
+.swiper-slide-active .hh-event-art .hh-thumb-markers{color:var(--hh-red-lift);mix-blend-mode:normal}
+/* selected: a signal travels the frame (mechanism from 21st.dev border-trail, rebuilt in CSS) */
+.swiper-slide-active .hh-event-art::after{
+  content:'';position:absolute;inset:-2px;z-index:3;pointer-events:none;padding:2px;
+  background:conic-gradient(from var(--hh-ang),transparent 0deg 288deg,var(--hh-red-lift) 330deg,#fff 352deg,transparent 360deg);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  animation:hh-trail 2.6s linear infinite;
+}
+@keyframes hh-trail{to{--hh-ang:360deg}}
+.swiper-slide-active .hh-event-name{color:var(--hh-white)}
+.hh-vinyl{
+  position:absolute;top:50%;right:-17%;width:74%;aspect-ratio:1;z-index:0;
+  transform:translateY(-50%);
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 50%, #111 0 14%, var(--hh-red) 14% 30%, #0a0a0a 30% 31%,
+      repeating-radial-gradient(circle at 50% 50%, #161616 0 2px, #060606 2px 4px) 31% 100%);
+  box-shadow:0 0 0 1px #1c1c1c;
+}
+.hh-event-card:hover .hh-vinyl,.swiper-slide-active .hh-event-card:focus-within .hh-vinyl{animation:hh-spin .8s linear infinite}
+@keyframes hh-spin{to{transform:translateY(-50%) rotate(360deg)}}
+.hh-event-art{position:relative;z-index:1;background:#0d0d0d;aspect-ratio:707/1000;overflow:hidden}
+.hh-event-art .hh-thumb-markers{padding:.5em}
+.hh-event-art img{width:100%;height:100%;object-fit:cover}
+.hh-event-art.is-typographic{display:flex;align-items:flex-end;padding:1.2em;border:1px solid #222}
+.hh-event-art.is-typographic span{
+  font-family:var(--hh-display);font-weight:600;font-size:clamp(20px,2vw,27px);line-height:1.02;letter-spacing:-.02em;
+}
+.hh-event-name{
+  font-family:var(--hh-display);font-weight:600;font-size:16px;line-height:1.1;
+  letter-spacing:-.01em;margin-top:1em;position:relative;z-index:1;
+}
+.hh-event-meta{display:flex;justify-content:space-between;align-items:baseline;gap:1em;margin-top:.5em;position:relative;z-index:1}
+.hh-event-meta .hh-event-idx{color:#7d7d7d;order:2;flex:none}
+.hh-event-date{color:var(--hh-white);order:1}
+.hh-event-cta{
+  margin-top:.5em;position:relative;z-index:1;display:inline-block;
+  padding:1em 0;border-bottom:1px solid currentColor;
+}
+.hh-event-cta:hover,.hh-event-cta:focus-visible{color:var(--hh-red-lift)}
+.hh-swiper-controls{display:flex;align-items:center;gap:2.4em;margin-top:3.6em}
+.hh-swiper-controls button{border-bottom:1px solid currentColor;padding-bottom:.2em}
+.hh-swiper-controls button:hover{color:var(--hh-red-lift)}
+.hh-swiper-fraction{color:#8d8d8d;font-size:12px;width:auto}
+
+/* draggable event popups */
+.hh-popup{
+  position:fixed;top:50%;left:50%;z-index:1010;width:min(420px,88vw);
+  background:var(--hh-white);color:var(--hh-black);display:none;
+  /* centering via GSAP xPercent/yPercent, NOT CSS transform: Draggable overwrites transform */
+  box-shadow:0 24px 80px rgba(0,0,0,.45);
+}
+.hh-popup.is-open{display:block}
+.hh-popup-bar{display:flex;justify-content:space-between;align-items:center;padding:.8em 1em;background:var(--hh-black);color:var(--hh-white);cursor:grab}
+.hh-popup-bar:active{cursor:grabbing}
+.hh-popup-body{padding:1.2em;display:flex;gap:1.2em}
+.hh-popup-body img{width:120px;height:auto;flex:none}
+.hh-popup-info h3{font-family:var(--hh-display);font-weight:600;font-size:20px;line-height:1.05;letter-spacing:-.02em;margin-bottom:.6em}
+.hh-popup-info p{font-size:12px;line-height:1.45;margin-bottom:.5em}
+.hh-popup-info .hh-tag{display:inline-block;background:var(--hh-red);color:var(--hh-white);padding:.25em .5em;margin-bottom:.7em}
+.hh-popup-link{display:inline-block;border-bottom:1px solid currentColor;padding-bottom:.15em;margin-top:.4em}
+.hh-popup-link:hover{color:var(--hh-red)}
+
+/* ---------- salir ---------- */
+.hh-salir{background:var(--hh-white);padding-bottom:0}
+.hh-hall{display:grid;grid-template-columns:1fr;gap:2.4em;margin-bottom:7em}
+@media (min-width:900px){
+  .hh-hall{grid-template-columns:7fr 5fr;align-items:end}
+  .hh-hall.is-flip{grid-template-columns:5fr 7fr}
+  .hh-hall.is-flip .hh-hall-photo{order:2}
+}
+.hh-hall-photo{position:relative}
+.hh-hall-photo img{width:100%;height:auto}
+.hh-hall-name{font-family:var(--hh-display);font-weight:600;font-size:clamp(40px,6vw,86px);line-height:.95;letter-spacing:-.03em;margin-bottom:.35em}
+.hh-hall-info .hh-label{color:var(--hh-grey);margin-bottom:1.6em}
+.hh-specs{list-style:none;display:flex;flex-direction:column}
+.hh-specs li{display:flex;justify-content:space-between;gap:2em;padding:.55em 0}
+.hh-specs li+li{border-top:1px solid #e3e3e3}
+.hh-specs .k{color:var(--hh-grey)}
+.hh-specs .v{text-align:right}
+.hh-hall-note{margin-top:1.6em;max-width:52ch;text-align:justify;line-height:1.5;text-transform:uppercase}
+
+/* live interlude */
+.hh-live-band{position:relative;height:72vh;overflow:hidden;background:var(--hh-black)}
+.hh-live-band img{width:100%;height:100%;object-fit:cover}
+.hh-live-caption{position:absolute;left:2em;bottom:1.6em;color:var(--hh-white);z-index:2}
+
+/* ---------- rokksafn ---------- */
+.hh-rokksafn{background:var(--hh-black);color:var(--hh-white)}
+.hh-rokksafn-grid{display:grid;grid-template-columns:1fr;gap:3em}
+@media (min-width:900px){.hh-rokksafn-grid{grid-template-columns:6fr 6fr;align-items:center}}
+.hh-rokksafn-photo{position:relative}
+.hh-rokksafn-photo img{width:100%;height:auto}
+.hh-rokksafn h2{margin-bottom:.5em}
+.hh-rokksafn .hh-red-script{color:var(--hh-red-lift)}
+.hh-hours{list-style:none;margin:2em 0;display:flex;flex-direction:column;gap:.6em}
+.hh-hours li{display:flex;justify-content:space-between;max-width:340px;gap:2em}
+.hh-hours .k{color:#8d8d8d}
+.hh-out-link{display:inline-block;border-bottom:1px solid currentColor;padding-bottom:.2em;margin-top:1em}
+.hh-out-link:hover{color:var(--hh-red-lift)}
+
+/* ---------- veislur ---------- */
+.hh-veislur{background:var(--hh-white)}
+.hh-occasions{list-style:none;display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid #e3e3e3}
+.hh-occasions li{
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  padding:1.5em 0;border-bottom:1px solid #e3e3e3;
+}
+.hh-occasions .hh-occ-name{font-family:var(--hh-display);font-weight:600;font-size:clamp(24px,3.4vw,44px);line-height:1;letter-spacing:-.02em}
+.hh-occasions .hh-occ-cap{color:var(--hh-grey)}
+.hh-veislur-cta{margin-top:3em;display:flex;align-items:center;gap:2.5em;flex-wrap:wrap}
+.hh-btn{
+  display:inline-flex;align-items:center;min-height:44px;
+  background:var(--hh-black);color:var(--hh-white);
+  padding:1.1em 1.6em;letter-spacing:.02em;
+}
+.hh-btn:hover{background:var(--hh-red)}
+.hh-btn.is-ghost{background:transparent;color:var(--hh-black);border:1px solid var(--hh-black)}
+.hh-btn.is-ghost:hover{border-color:var(--hh-red);color:var(--hh-red);background:transparent}
+
+/* ---------- saga ---------- */
+.hh-saga{background:var(--hh-white);padding-top:0}
+.hh-saga-grid{display:grid;grid-template-columns:1fr;gap:3em}
+@media (min-width:900px){.hh-saga-grid{grid-template-columns:5fr 7fr;align-items:center}}
+.hh-saga-photo{position:relative}
+.hh-saga-photo img{width:100%;height:auto}
+
+/* ---------- póstlisti ---------- */
+.hh-postlisti{background:var(--hh-black);color:var(--hh-white);text-align:left}
+.hh-postlisti .hh-display{max-width:20ch}
+.hh-postlisti .hh-rich{margin:2em 0 2.6em}
+
+/* ---------- footer ---------- */
+.hh-footer{position:relative;background:var(--hh-black);color:var(--hh-white);padding:5em 2em 6em;overflow:hidden}
+.hh-footer-markers{position:absolute;inset:1.25em;pointer-events:none;color:var(--hh-white)}
+.hh-footer-grid{display:grid;grid-template-columns:1fr;gap:3em;position:relative;z-index:1}
+@media (min-width:900px){.hh-footer-grid{grid-template-columns:2fr 1fr 1fr 1fr}}
+.hh-footer-logo img{height:44px;width:auto;margin-bottom:1.6em}
+.hh-footer h4.footer_links_header{margin-bottom:1.1em;color:#8d8d8d}
+.hh-footer .footer_link-list{list-style:none;display:flex;flex-direction:column;gap:.7em}
+.hh-footer a:hover{color:var(--hh-red-lift)}
+.hh-footer-bottom{position:relative;z-index:1;margin-top:5em;padding-top:1.4em;border-top:1px solid #222;display:flex;justify-content:space-between;gap:2em;flex-wrap:wrap;color:#8d8d8d;font-size:11px}
+@media (max-width:991px){
+  .hh-footer .footer_links_header{cursor:pointer}
+}
+
+/* ---------- reveal helpers ----------
+   reveals START ragged-left; JS flips them to justify (the Flip device).
+   Static justify would leave the Flip with nothing to animate. */
+[data-hh-reveal],[data-hh-reveal] p{text-align:left}
+.hh-js [data-hh-reveal] .word{will-change:transform}
+html.hh-reduced [data-hh-reveal],html.hh-reduced [data-hh-reveal] p{text-align:justify}
+html:not(.hh-js) [data-hh-reveal],html:not(.hh-js) [data-hh-reveal] p{text-align:justify}
+
+/* ---------- touch targets: 44px minimum on phone/tablet ----------
+   Desktop keeps its tight editorial density (mouse); touch gets real targets.
+   Underlines move to ::after so they hug the text instead of stranding at the
+   bottom of a 44px box. */
+@media (max-width:991px){
+  .hh-event-cta,.hh-swiper-controls button,.hh-out-link,.hh-menu-btn,
+  .hh-menu-close,.hh-navbar-logo,.hh-footer a,.hh-popup-link,.hh-popup-bar button{
+    min-height:44px;min-width:44px;display:inline-flex;align-items:center;
+  }
+  .hh-event-cta,.hh-swiper-controls button,.hh-out-link,.hh-popup-link{
+    position:relative;border-bottom:0;
+  }
+  .hh-event-cta::after,.hh-swiper-controls button::after,
+  .hh-out-link::after,.hh-popup-link::after{
+    content:'';position:absolute;left:0;right:0;top:calc(50% + .78em);
+    height:1px;background:currentColor;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .hh-event-card:hover .hh-vinyl{animation:none}
+  .swiper-slide-active .hh-event-art::after{animation:none}
+  *{scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body class="hh-loading">
+<div class="hh-page">
+
+<!-- page-scale marker overlay -->
+<div class="hh-marker-overlay" aria-hidden="true">
+  <span class="hh-mk tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  <span class="hh-mk tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  <span class="hh-mk bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  <span class="hh-mk br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  <span class="hh-mk cl"><svg viewBox="0 0 10 19" fill="none"><path d="M0 0V19M0 9.5H6" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  <span class="hh-mk cr"><svg viewBox="0 0 10 19" fill="none"><path d="M10 0V19M4 9.5H10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+</div>
+
+<!-- cursor -->
+<div class="hh-cursor" data-cursor="" aria-hidden="true">
+  <div class="hh-cursor-bubble"><span data-cursor-text-target></span></div>
+</div>
+
+<!-- navbar -->
+<nav class="hh-navbar" aria-label="Aðalvalmynd">
+  <a class="hh-navbar-logo" href="#top" aria-label="Hljómahöll, forsíða">
+    <img src="assets/logo-white.png" alt="Hljómahöll">
+  </a>
+  <div class="hh-nav-groups">
+    <div class="hh-nav-group">
+      <a href="#dagskra" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKOÐA"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">DAGSKRÁ</span> <span data-hh-event-count>[12]</span></a>
+      <a href="#salir" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKOÐA"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">SALIR</span></a>
+    </div>
+    <div class="hh-nav-group">
+      <a href="#rokksafn" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKOÐA"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">ROKKSAFN</span></a>
+      <a href="#veislur" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKOÐA"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">VEISLUR</span></a>
+    </div>
+    <div class="hh-nav-group">
+      <a href="#saga" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKOÐA"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">SAGAN</span></a>
+      <a href="#postlisti" data-scramble-hover="link" data-cursor-hover data-cursor-text="SKRÁ"><span class="hh-sq" aria-hidden="true"></span><span data-scramble-hover="target">PÓSTLISTI</span></a>
+    </div>
+  </div>
+  <button class="hh-menu-btn" data-hh-menu="open" aria-haspopup="dialog"><span class="hh-sq" aria-hidden="true"></span>VALMYND</button>
+</nav>
+
+<!-- menu -->
+<div class="hh-menu-wrapper" role="dialog" aria-modal="true" aria-label="Valmynd">
+  <div class="hh-menu">
+    <button class="hh-menu-close" data-hh-menu="close">[ LOKA ]</button>
+    <ul class="hh-menu-list">
+      <li><a href="#dagskra" data-hh-menu="close">DAGSKRÁ</a></li>
+      <li><a href="#salir" data-hh-menu="close">SALIR</a></li>
+      <li><a href="#rokksafn" data-hh-menu="close">ROKKSAFN ÍSLANDS</a></li>
+      <li><a href="#veislur" data-hh-menu="close">VEISLUR &amp; RÁÐSTEFNUR</a></li>
+      <li><a href="#saga" data-hh-menu="close">SAGAN</a></li>
+      <li><a href="#postlisti" data-hh-menu="close">PÓSTLISTI</a></li>
+    </ul>
+    <div class="hh-menu-meta">
+      <span>HJALLAVEGUR 2, 260 REYKJANESBÆR</span>
+      <a href="tel:+3544201030">SÍMI: 420 1030</a>
+      <a href="mailto:info@hljomaholl.is">INFO@HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+
+<!-- loader -->
+<div class="hh-loader" aria-hidden="true">
+  <div class="hh-loader-text-wrapper">
+    <span class="hh-loader-item">HLJÓMAHÖLL</span>
+    <span class="hh-loader-item">REYKJANESBÆR</span>
+    <span class="hh-loader-item" data-loader-text>0%</span>
+  </div>
+  <div class="hh-loader-bar" data-loader-bar></div>
+</div>
+
+<main class="hh-main" id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hh-hero" aria-label="Hljómahöll">
+    <div class="hh-hero-frame" data-hero-frame>
+      <div class="hh-hero-media" data-hero-media>
+        <video muted loop playsinline preload="none" poster="assets/hero-poster.webp"
+               data-hero-video data-src="assets/hero.mp4" aria-label="Svið í Hljómahöll"></video>
+      </div>
+    </div>
+    <div class="hh-hero-logo">
+      <div class="hh-hero-logo-box" data-hero-logo>
+        <span class="hh-thumb-markers" aria-hidden="true">
+          <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+        </span>
+        <img src="assets/logo-white.png" alt="" aria-hidden="true">
+        <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Hljómahöll</h1>
+      </div>
+    </div>
+    <div class="hh-hero-bottom">
+      <div class="hh-hero-intro">
+        <p class="hh-label"><span class="hh-sq" aria-hidden="true"></span>HJARTA MENNINGAR</p>
+        <p class="hh-mono-block">Hljómahöll er miðstöð mannlífs, ráðstefnuhalds, funda og menningarviðburða í Reykjanesbæ.</p>
+      </div>
+      <a class="hh-next" href="#dagskra" data-cursor-hover data-cursor-text="DAGSKRÁ">
+        <span class="hh-next-thumb">
+          <img width="900" height="1274" src="assets/poster-louis-cole.webp" alt="Plakat: Louis Cole Big Band">
+          <span class="hh-thumb-markers" aria-hidden="true">
+            <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+            <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+            <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+            <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          </span>
+        </span>
+        <span class="hh-next-info">
+          <span class="hh-label"><span class="hh-sq" aria-hidden="true"></span>NÆST Á DAGSKRÁ</span>
+          <p>LOUIS COLE BIG BAND<br>13. ÁGÚST 2026</p>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ MANIFESTO ============ -->
+  <section class="hh-section hh-manifesto" aria-labelledby="hh-manifesto-h">
+    <p class="hh-label"><span class="hh-sq" aria-hidden="true"></span>UM HLJÓMAHÖLL</p>
+    <h2 class="hh-display" id="hh-manifesto-h" data-hh-reveal>HJARTA MENNINGAR Í REYKJANESBÆ</h2>
+    <div class="hh-rich" data-hh-reveal>
+      <p>Í Hljómahöll er fullkomin aðstaða fyrir viðburðahald af öllum toga. Hér eru haldnir tónleikar, fundir, ráðstefnur, árshátíðir og veislur. Hið sögufræga félagsheimili Stapi er hluti af Hljómahöll og þjónar áfram sínu hlutverki eins og áður.</p>
+    </div>
+  </section>
+
+  <!-- ============ DAGSKRÁ ============ -->
+  <section class="hh-section hh-dagskra" id="dagskra" aria-labelledby="hh-dagskra-h">
+    <div class="hh-section-head">
+      <h2 class="hh-display" id="hh-dagskra-h" data-hh-reveal>VIÐBURÐIR FRAMUNDAN</h2>
+      <span class="hh-label" data-hh-event-count>[12]</span>
+    </div>
+
+    <div class="swiper hh-swiper" data-hh-events-swiper>
+      <div class="swiper-wrapper">
+        <!-- 1 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="0">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-louis-cole.webp" alt="Plakat: Louis Cole Big Band"></div>
+          <h3 class="hh-event-name">LOUIS COLE BIG BAND</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[01]</span><span class="hh-event-date">13. ÁGÚST</span></div>
+          <button class="hh-event-cta" data-popup-open="0" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 2 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="1">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-kk.webp" alt="Plakat: KK 70 ára"></div>
+          <h3 class="hh-event-name">KK | 70 ÁRA</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[02]</span><span class="hh-event-date">3. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="1" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 3 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="2">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-ensimi.webp" alt="Plakat: Ensími"></div>
+          <h3 class="hh-event-name">ENSÍMI</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[03]</span><span class="hh-event-date">3. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="2" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 4 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="3">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-petur-johann.webp" alt="Plakat: Pétur Jóhann"></div>
+          <h3 class="hh-event-name">PÉTUR JÓHANN</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[04]</span><span class="hh-event-date">4. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="3" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 5 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="4">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art is-typographic" aria-hidden="true"><span>MOSES HIGHTOWER</span></div>
+          <h3 class="hh-event-name">MOSES HIGHTOWER</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[05]</span><span class="hh-event-date">10. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="4" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 6 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="5">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-emmsje.webp" alt="Plakat: Emmsjé Gauti á trúnó"></div>
+          <h3 class="hh-event-name">EMMSJÉ GAUTI Á TRÚNÓ</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[06]</span><span class="hh-event-date">18. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="5" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 7 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="6">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art is-typographic" aria-hidden="true"><span>THE ILLUSIONIST</span></div>
+          <h3 class="hh-event-name">THE ILLUSIONIST</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[07]</span><span class="hh-event-date">19. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="6" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 8 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="7">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art is-typographic" aria-hidden="true"><span>PÉTUR BEN</span></div>
+          <h3 class="hh-event-name">PÉTUR BEN</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[08]</span><span class="hh-event-date">25. SEPTEMBER</span></div>
+          <button class="hh-event-cta" data-popup-open="7" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 9 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="8">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-feita-hjartad.webp" alt="Plakat: Feita Hjartað, uppistand með Dóra DNA"></div>
+          <h3 class="hh-event-name">FEITA HJARTAÐ</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[09]</span><span class="hh-event-date">1. OKTÓBER</span></div>
+          <button class="hh-event-cta" data-popup-open="8" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 10 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="9">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art is-typographic" aria-hidden="true"><span>AC/DC ROKKMESSA</span></div>
+          <h3 class="hh-event-name">AC/DC ROKKMESSA</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[10]</span><span class="hh-event-date">16. OKTÓBER</span></div>
+          <button class="hh-event-cta" data-popup-open="9" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 11 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="10">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art is-typographic" aria-hidden="true"><span>HIMINN OG JÖRÐ</span></div>
+          <h3 class="hh-event-name">HIMINN OG JÖRÐ</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[11]</span><span class="hh-event-date">24. OKTÓBER</span></div>
+          <button class="hh-event-cta" data-popup-open="10" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+        <!-- 12 -->
+        <div class="swiper-slide"><article class="hh-event-card" data-event-i="11">
+          <span class="hh-vinyl" aria-hidden="true"></span>
+          <div class="hh-event-art"><img loading="lazy" src="assets/poster-mannakorn.webp" alt="Plakat: Mannakorn"></div>
+          <h3 class="hh-event-name">MANNAKORN</h3>
+          <div class="hh-event-meta"><span class="hh-event-idx" data-slider-index>[12]</span><span class="hh-event-date">31. OKTÓBER</span></div>
+          <button class="hh-event-cta" data-popup-open="11" data-cursor-hover data-cursor-text="OPNA">NÁNAR</button>
+        </article></div>
+      </div>
+    </div>
+
+    <div class="hh-swiper-controls">
+      <button data-hh-prev data-cursor-hover data-cursor-text="FYRRI">[ FYRRI ]</button>
+      <span class="hh-swiper-fraction" data-hh-fraction>01 / 12</span>
+      <button data-hh-next data-cursor-hover data-cursor-text="NÆSTA">[ NÆSTA ]</button>
+      <button data-hh-shuffle data-cursor-hover data-cursor-text="?">[ STOKKA ]</button>
+    </div>
+  </section>
+
+  <!-- ============ SALIR ============ -->
+  <section class="hh-section hh-salir" id="salir" aria-labelledby="hh-salir-h">
+    <div class="hh-section-head">
+      <h2 class="hh-display" id="hh-salir-h" data-hh-reveal>TVEIR SALIR, EITT HÚS</h2>
+    </div>
+
+    <div class="hh-hall">
+      <div class="hh-hall-photo">
+        <img width="1600" height="1047" src="assets/stapi.webp" alt="Stapi, stóri salurinn í Hljómahöll, í leikhúsuppröðun með svölum">
+        <span class="hh-thumb-markers" aria-hidden="true">
+          <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+        </span>
+      </div>
+      <div class="hh-hall-info">
+        <h3 class="hh-hall-name">STAPI</h3>
+        <p class="hh-label">HIÐ SÖGUFRÆGA FÉLAGSHEIMILI</p>
+        <ul class="hh-specs hh-mono-block">
+          <li><span class="k">TÓNLEIKAR</span><span class="v">800 GESTIR</span></li>
+          <li><span class="k">DANSLEIKIR</span><span class="v">897 GESTIR</span></li>
+          <li><span class="k">BORÐHALD</span><span class="v">450 GESTIR</span></li>
+          <li><span class="k">SVIÐ</span><span class="v">12M X 8M</span></li>
+          <li><span class="k">HLJÓÐKERFI</span><span class="v">L'ACOUSTICS KIVA</span></li>
+          <li><span class="k">MYNDVARPI</span><span class="v">NEC PX803UL 8000LM</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hh-hall is-flip">
+      <div class="hh-hall-photo">
+        <img width="1600" height="1067" src="assets/berg.webp" alt="Berg, 127 sæta salur í Hljómahöll, rauð sæti í sjö stighækkandi röðum">
+        <span class="hh-thumb-markers" aria-hidden="true">
+          <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+        </span>
+      </div>
+      <div class="hh-hall-info">
+        <h3 class="hh-hall-name">BERG</h3>
+        <p class="hh-label">NEFNDUR EFTIR HÓLMSBERGI Í KEFLAVÍK</p>
+        <ul class="hh-specs hh-mono-block">
+          <li><span class="k">SÆTAFJÖLDI</span><span class="v">127 SÆTI</span></li>
+          <li><span class="k">UPPRÖÐUN</span><span class="v">7 STIGHÆKKANDI RAÐIR</span></li>
+          <li><span class="k">STÆRÐ SALAR</span><span class="v">9,3M X 16M</span></li>
+          <li><span class="k">SVIÐ</span><span class="v">9,3M X 5M</span></li>
+          <li><span class="k">HLJÓÐKERFI</span><span class="v">JBL VRX900</span></li>
+          <li><span class="k">SKJÁVARPI</span><span class="v">NEC PA703UL 7000LM</span></li>
+        </ul>
+        <p class="hh-hall-note">Stólarnir heita Magni og eru hannaðir af Valdimar Harðarsyni arkitekt.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- live interlude -->
+  <div class="hh-live-band" aria-hidden="false">
+    <img width="1600" height="1067" src="assets/live.webp" alt="Tónleikar í Hljómahöll, svið baðað bláu ljósi">
+    <p class="hh-live-caption hh-label"><span class="hh-sq" aria-hidden="true"></span>ÚR MYNDASAFNI HLJÓMAHALLAR</p>
+  </div>
+
+  <!-- ============ ROKKSAFN ============ -->
+  <section class="hh-section hh-rokksafn" id="rokksafn" aria-labelledby="hh-rokksafn-h">
+    <div class="hh-rokksafn-grid">
+      <div>
+        <p class="hh-label"><span class="hh-sq" aria-hidden="true"></span>Í HÚSINU</p>
+        <h2 class="hh-display" id="hh-rokksafn-h" data-hh-reveal aria-label="Rokksafn Íslands"><span>ROKKSAFN</span> <span class="hh-red-script">ÍSLANDS</span></h2>
+        <div class="hh-rich" data-hh-reveal>
+          <p>Rokksafn Íslands er sýning um sögu popp- og rokktónlistar á Íslandi. Safnið er gagnvirkt: í hljóðbúrinu geta gestir prófað rafmagnstrommusett, gítar og bassa, eða tekið lagið í sérhönnuðum upptökuklefa.</p>
+        </div>
+        <ul class="hh-hours hh-mono-block">
+          <li><span class="k">VIRKA DAGA</span><span>9:00 - 18:00</span></li>
+          <li><span class="k">UM HELGAR</span><span>10:00 - 17:00</span></li>
+        </ul>
+        <a class="hh-out-link" href="https://www.rokksafn.is" target="_blank" rel="noopener" data-scramble-hover="link" data-cursor-hover data-cursor-text="OPNA"><span data-scramble-hover="target">ROKKSAFN.IS</span></a>
+      </div>
+      <div class="hh-rokksafn-photo">
+        <img width="1600" height="1060" src="assets/exterior-rokksafn.webp" alt="Hljómahöll að utan, rautt skilti Rokksafns Íslands á framhliðinni">
+        <span class="hh-thumb-markers" aria-hidden="true">
+          <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VEISLUR ============ -->
+  <section class="hh-section hh-veislur" id="veislur" aria-labelledby="hh-veislur-h">
+    <div class="hh-section-head">
+      <h2 class="hh-display" id="hh-veislur-h" data-hh-reveal>VANTAR ÞIG SAL FYRIR ÞINN VIÐBURÐ?</h2>
+    </div>
+    <ul class="hh-occasions">
+      <li><span class="hh-occ-name">BRÚÐKAUPSVEISLUR</span><span class="hh-occ-cap hh-label">STAPI · ALLT AÐ 450 Í BORÐHALDI</span></li>
+      <li><span class="hh-occ-name">ÁRSHÁTÍÐIR</span><span class="hh-occ-cap hh-label">STAPI · ALLT AÐ 897 GESTIR</span></li>
+      <li><span class="hh-occ-name">FUNDIR OG RÁÐSTEFNUR</span><span class="hh-occ-cap hh-label">BERG · 127 SÆTI</span></li>
+      <li><span class="hh-occ-name">TÓNLEIKAR</span><span class="hh-occ-cap hh-label">STAPI · ALLT AÐ 800 GESTIR</span></li>
+    </ul>
+    <div class="hh-veislur-cta">
+      <a class="hh-btn" href="mailto:info@hljomaholl.is?subject=Fyrirspurn%20um%20sal" data-cursor-hover data-cursor-text="SENDA">BÓKA SAL</a>
+      <p class="hh-label">Í HLJÓMAHÖLL ER EINNIG VEISLUÞJÓNUSTA</p>
+    </div>
+  </section>
+
+  <!-- ============ SAGA ============ -->
+  <section class="hh-section hh-saga" id="saga" aria-labelledby="hh-saga-h">
+    <div class="hh-saga-grid">
+      <div class="hh-saga-photo">
+        <img width="1600" height="1060" src="assets/exterior-stapi.webp" alt="Hljómahöll að utan, STAPI merkið yfir innganginum">
+        <span class="hh-thumb-markers" aria-hidden="true">
+          <span class="hh-tm tl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm tr"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm bl"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+          <span class="hh-tm br"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+        </span>
+      </div>
+      <div>
+        <p class="hh-label"><span class="hh-sq" aria-hidden="true"></span>SAGAN</p>
+        <h2 class="hh-display" id="hh-saga-h" data-hh-reveal>OPNAÐ 5. APRÍL 2014</h2>
+        <div class="hh-rich" data-hh-reveal>
+          <p>Opnunarhátíð Hljómahallar, Rokksafns Íslands og Tónlistarskóla Reykjanesbæjar var haldin laugardaginn 5. apríl 2014. Í húsinu starfar Tónlistarskóli Reykjanesbæjar, einn sá stærsti á landinu, og hið sögufræga félagsheimili Stapi þjónar áfram sínu hlutverki eins og áður.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PÓSTLISTI ============ -->
+  <section class="hh-section hh-postlisti" id="postlisti" aria-labelledby="hh-postlisti-h">
+    <p class="hh-label"><span class="hh-sq" aria-hidden="true"></span>PÓSTLISTI</p>
+    <h2 class="hh-display" id="hh-postlisti-h" data-hh-reveal>EKKI MISSA AF NEINU</h2>
+    <div class="hh-rich" data-hh-reveal>
+      <p>Þau sem skrá sig á póstlista Hljómahallar fá fréttir af nýjum viðburðum, tilboðum og aðgang að sérstökum forsölum fyrir viðburði.</p>
+    </div>
+    <a class="hh-btn" style="background:var(--hh-red)" href="https://communication.markethype.io/signup-forms/6a0c659a79eae9f58e5a2159" target="_blank" rel="noopener" data-cursor-hover data-cursor-text="SKRÁ">SKRÁ MIG</a>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="hh-footer">
+  <div class="hh-footer-markers" aria-hidden="true">
+    <span class="hh-tm tl" style="position:absolute;top:0;left:0"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+    <span class="hh-tm tr" style="position:absolute;top:0;right:0"><svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+    <span class="hh-tm bl" style="position:absolute;bottom:0;left:0"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+    <span class="hh-tm br" style="position:absolute;bottom:0;right:0"><svg viewBox="0 0 10 10" fill="none"><path d="M0 10H10M10 0V10" stroke="currentColor" stroke-width="1.4"/></svg></span>
+  </div>
+  <div class="hh-footer-grid">
+    <div class="hh-footer-logo">
+      <img src="assets/logo-white.png" alt="Hljómahöll">
+      <p class="hh-mono-block" style="max-width:32ch">HJALLAVEGUR 2, 260 REYKJANESBÆR, ÍSLAND</p>
+    </div>
+    <div class="footer_links hh-footer-col">
+      <h4 class="footer_links_header hh-label">HAFA SAMBAND</h4>
+      <ul class="footer_link-list">
+        <li><a href="tel:+3544201030" data-scramble-hover="link"><span data-scramble-hover="target">SÍMI: 420 1030</span></a></li>
+        <li><a href="mailto:info@hljomaholl.is" data-scramble-hover="link"><span data-scramble-hover="target">INFO@HLJOMAHOLL.IS</span></a></li>
+      </ul>
+    </div>
+    <div class="footer_links hh-footer-col">
+      <h4 class="footer_links_header hh-label">ÍBÚAR HLJÓMAHALLAR</h4>
+      <ul class="footer_link-list">
+        <li><a href="https://www.rokksafn.is" target="_blank" rel="noopener" data-scramble-hover="link"><span data-scramble-hover="target">ROKKSAFN ÍSLANDS</span></a></li>
+        <li><a href="https://www.hljomaholl.is" target="_blank" rel="noopener" data-scramble-hover="link"><span data-scramble-hover="target">TÓNLISTARSKÓLI REYKJANESBÆJAR</span></a></li>
+        <li><a href="https://www.hljomaholl.is" target="_blank" rel="noopener" data-scramble-hover="link"><span data-scramble-hover="target">BÓKASAFN REYKJANESBÆJAR</span></a></li>
+      </ul>
+    </div>
+    <div class="footer_links hh-footer-col">
+      <h4 class="footer_links_header hh-label">EFNI</h4>
+      <ul class="footer_link-list">
+        <li><a href="#dagskra" data-scramble-hover="link"><span data-scramble-hover="target">DAGSKRÁ</span></a></li>
+        <li><a href="#salir" data-scramble-hover="link"><span data-scramble-hover="target">SALIR</span></a></li>
+        <li><a href="#veislur" data-scramble-hover="link"><span data-scramble-hover="target">VEISLUR</span></a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="hh-footer-bottom">
+    <span>FRUMGERÐ / HÖNNUNARTILLAGA. EKKI OPINBER VEFUR HLJÓMAHALLAR.</span>
+    <span>EFNI AF HLJOMAHOLL.IS OG ROKKSAFN.IS, ÁGÚST 2026</span>
+  </div>
+</footer>
+
+<!-- ============ DRAGGABLE EVENT POPUPS ============ -->
+<div class="hh-popup" data-hh-popup data-popup-i="0" role="dialog" aria-label="Louis Cole Big Band">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [01]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-louis-cole.webp" alt="">
+    <div class="hh-popup-info">
+      <h3>LOUIS COLE BIG BAND</h3>
+      <p>13. ÁGÚST 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="1" role="dialog" aria-label="KK 70 ára">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [02]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-kk.webp" alt="">
+    <div class="hh-popup-info">
+      <span class="hh-tag">LJÓSANÓTT</span>
+      <h3>KK | 70 ÁRA</h3>
+      <p>3. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="2" role="dialog" aria-label="Ensími">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [03]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-ensimi.webp" alt="">
+    <div class="hh-popup-info">
+      <span class="hh-tag">LJÓSANÓTT</span>
+      <h3>ENSÍMI</h3>
+      <p>3. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="3" role="dialog" aria-label="Pétur Jóhann">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [04]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-petur-johann.webp" alt="">
+    <div class="hh-popup-info">
+      <span class="hh-tag">LJÓSANÓTT</span>
+      <h3>PÉTUR JÓHANN</h3>
+      <p>4. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="4" role="dialog" aria-label="Moses Hightower">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [05]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <div class="hh-popup-info">
+      <h3>MOSES HIGHTOWER</h3>
+      <p>10. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="5" role="dialog" aria-label="Emmsjé Gauti á trúnó">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [06]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-emmsje.webp" alt="">
+    <div class="hh-popup-info">
+      <h3>EMMSJÉ GAUTI Á TRÚNÓ</h3>
+      <p>18. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="6" role="dialog" aria-label="The Illusionist">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [07]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <div class="hh-popup-info">
+      <h3>THE ILLUSIONIST</h3>
+      <p>19. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="7" role="dialog" aria-label="Pétur Ben">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [08]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <div class="hh-popup-info">
+      <h3>PÉTUR BEN</h3>
+      <p>25. SEPTEMBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="8" role="dialog" aria-label="Feita Hjartað">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [09]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-feita-hjartad.webp" alt="">
+    <div class="hh-popup-info">
+      <h3>FEITA HJARTAÐ</h3>
+      <p>UPPISTAND MEÐ DÓRA DNA</p>
+      <p>1. OKTÓBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="9" role="dialog" aria-label="AC/DC rokkmessa">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [10]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <div class="hh-popup-info">
+      <h3>AC/DC ROKKMESSA</h3>
+      <p>16. OKTÓBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="10" role="dialog" aria-label="Himinn og jörð">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [11]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <div class="hh-popup-info">
+      <h3>HIMINN OG JÖRÐ</h3>
+      <p>DÆGURLAGAPERLUR GUNNARS ÞÓRÐARSONAR</p>
+      <p>24. OKTÓBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+<div class="hh-popup" data-hh-popup data-popup-i="11" role="dialog" aria-label="Mannakorn">
+  <div class="hh-popup-bar"><span>VIÐBURÐUR [12]</span><button data-popup-close>[ LOKA ]</button></div>
+  <div class="hh-popup-body">
+    <img src="assets/poster-mannakorn.webp" alt="">
+    <div class="hh-popup-info">
+      <h3>MANNAKORN</h3>
+      <p>31. OKTÓBER 2026 · HLJÓMAHÖLL</p>
+      <a class="hh-popup-link" href="https://www.hljomaholl.is/vidburdir" target="_blank" rel="noopener">MIÐAR OG NÁNAR Á HLJOMAHOLL.IS</a>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.hh-page -->
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Draggable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/InertiaPlugin.min.js"></script>
+<script src="https://unpkg.com/lenis@1.3.21/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+<script>
+/* ============ Hljómahöll engine : No Art system, numbers from source ============ */
+(function(){
+'use strict';
+gsap.registerPlugin(ScrollTrigger, SplitText, Flip, Draggable, InertiaPlugin);
+
+var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduced) document.documentElement.classList.add('hh-reduced');
+var menuOpen = false;
+
+/* ---------- Lenis (reference: default config, gsap ticker, lagSmoothing 0) ---------- */
+var lenis = null;
+if (!reduced) {
+  lenis = new Lenis({ anchors: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
+  gsap.ticker.lagSmoothing(0);
+}
+
+/* ---------- Loader / aperture (session-gated; counter 2.1s; 0 -> 4rem -> 45vw x 25vw -> full) ---------- */
+var loader = document.querySelector('.hh-loader');
+var heroFrame = document.querySelector('[data-hero-frame]');
+var loaderItems = document.querySelectorAll('.hh-loader-item');
+var loaderText = document.querySelector('[data-loader-text]');
+var loaderBar = document.querySelector('[data-loader-bar]');
+var navbar = document.querySelector('.hh-navbar');
+var heroBottom = document.querySelector('.hh-hero-bottom');
+var heroLogo = document.querySelector('[data-hero-logo]');
+var markerOverlay = document.querySelector('.hh-marker-overlay');
+
+function endState(){
+  gsap.set(heroFrame, { width:'100vw', height:'100svh', autoAlpha:1 });
+  gsap.set(loader, { display:'none' });
+  gsap.set([navbar, heroBottom], { y:0, autoAlpha:1 });
+  gsap.set([heroLogo, markerOverlay], { autoAlpha:1, scale:1 });
+  document.body.classList.remove('hh-loading');
+}
+
+if (reduced || sessionStorage.getItem('hhLoaderPlayed')) {
+  endState();
+} else {
+  gsap.set(heroFrame, { width:0, height:0, autoAlpha:0 });
+  gsap.set([navbar, heroBottom], { y:'1.2em', autoAlpha:0 });
+  gsap.set([heroLogo, markerOverlay], { autoAlpha:0, scale:.96 });
+  gsap.set(loaderItems, { autoAlpha:0 });
+
+  var counter = { value: 0 };
+  gsap.to(counter, {
+    value: 100, duration: 2.1, ease: 'power2.inOut',
+    onUpdate: function(){
+      var v = Math.round(counter.value);
+      if (loaderText) loaderText.textContent = v + '%';
+      if (loaderBar) loaderBar.style.width = v + '%';
+    }
+  });
+
+  var isMobile = window.matchMedia('(max-width: 767px)').matches;
+  var tl = gsap.timeline({
+    defaults: { ease: 'power4.inOut' },
+    onComplete: function(){
+      sessionStorage.setItem('hhLoaderPlayed', 'true');
+      gsap.set(loader, { display:'none' });
+      if (!menuOpen) document.body.classList.remove('hh-loading');
+    }
+  });
+  tl.to(loaderItems, { autoAlpha:1, duration:.6, ease:'power2.out' });
+  tl.to(heroFrame, { autoAlpha:1, duration:.05 }, '-=0.3');
+  tl.to(heroFrame, { width:'4rem', height:'4rem', duration:.6, ease:'power4.out' }, '-=0.3');
+  tl.to({}, { duration:.2 });
+  tl.to(heroFrame, { width: isMobile ? '65vw' : '45vw', height: isMobile ? '65vw' : '25vw', duration:.8 });
+  tl.to({}, { duration:.2 });
+  tl.to(heroFrame, { width:'100vw', height:'100svh', duration:.8 });
+  tl.to(loaderItems, { autoAlpha:0, duration:.5, ease:'power2.in' }, '<');
+  tl.to('.hh-loader-text-wrapper', { x:'-3em', duration:.8 }, '<');
+  tl.to(loader, { autoAlpha:0, duration:.4, ease:'power2.out' }, '-=0.2');
+  tl.to([heroBottom], { y:0, autoAlpha:1, duration:1, ease:'power4.out' }, '+=0.5');
+  tl.to([navbar], { y:0, autoAlpha:1, duration:1, ease:'power4.out' }, '<');
+  tl.to([heroLogo, markerOverlay], { autoAlpha:1, scale:1, duration:.8, ease:'power4.out' }, '<');
+}
+
+/* ---------- Hero parallax (reference: bottom -20%, linear, one viewport) ---------- */
+if (!reduced) {
+  gsap.to('[data-hero-media]', {
+    bottom: '-20%', ease: 'none',
+    scrollTrigger: {
+      trigger: '.hh-hero',
+      start: 'bottom bottom', end: 'bottom top', scrub: true
+    }
+  });
+}
+
+/* Hero film: desktop/tablet only. Phones keep the poster still (the film is ~4.9 MB,
+   which is not something to push over cellular for decoration). */
+(function(){
+  var v = document.querySelector('[data-hero-video]');
+  if (!v) return;
+  var wide = window.matchMedia('(min-width: 768px)').matches;
+  var saveData = navigator.connection && navigator.connection.saveData;
+  if (reduced || !wide || saveData) return;   // poster stays, nothing downloaded
+  v.src = v.getAttribute('data-src');
+  v.play().catch(function(){});
+})();
+
+/* ---------- Flip-to-justify reveal (reference mod10, verbatim mechanics) ---------- */
+function initReveals(){
+  document.querySelectorAll('[data-hh-reveal]').forEach(function(el){
+    if (reduced) { el.style.textAlign = 'justify'; return; }
+    var targets = [el].concat(Array.prototype.slice.call(el.querySelectorAll('h1,h2,h3,p,span,li,a')))
+      .filter(function(t){
+        return Array.prototype.some.call(t.childNodes, function(n){
+          return n.nodeType === Node.TEXT_NODE && n.textContent.trim().length > 0;
+        });
+      });
+    if (!targets.length) return;
+    var label = el.getAttribute('aria-label') || el.textContent.trim().replace(/\s+/g,' ');
+    el.setAttribute('aria-label', label);
+    var split = new SplitText(targets, { type:'words', wordsClass:'word' });
+    split.words.forEach(function(w){
+      var r = w.getBoundingClientRect();
+      w.style.display = 'inline-block';
+      w.style.width = r.width + 'px';
+      w.style.whiteSpace = 'nowrap';
+      w.style.textAlign = 'left';
+      w.setAttribute('aria-hidden', 'true');
+    });
+    ScrollTrigger.create({
+      trigger: el, start: 'top 85%', once: true,
+      onEnter: function(){
+        var state = Flip.getState(split.words);
+        split.words.forEach(function(w){
+          w.style.width = ''; w.style.whiteSpace = ''; w.style.textAlign = '';
+        });
+        targets.forEach(function(t){ t.style.textAlign = 'justify'; });
+        Flip.from(state, { duration: 1, ease: 'expo.out', stagger: { amount: .3, from: 'start' } });
+      }
+    });
+  });
+}
+if (document.fonts && document.fonts.ready) { document.fonts.ready.then(initReveals); }
+else { initReveals(); }
+
+/* ---------- Scramble hover (reference: charset, tick .06, 60% chars, 15% red, .65s) ---------- */
+var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&@';
+var TICK = 0.06;
+function scrambleTo(state, finalText, dur, colored){
+  if (state.tween) state.tween.kill();
+  var idx = [];
+  for (var i = 0; i < finalText.length; i++) {
+    if (finalText[i] !== ' ' && Math.random() < .6) idx.push(i);
+  }
+  var last = 0, arr = finalText.split('');
+  var prog = { value: 0 };
+  state.tween = gsap.to(prog, {
+    value: 1, duration: dur, ease: 'power1.out',
+    onUpdate: function(){
+      var n = prog.value, cut = .75, t = state.tween.time();
+      if (n < cut && t - last >= TICK) {
+        last = t; arr = finalText.split('');
+        idx.forEach(function(k){
+          var c = CHARS[Math.floor(Math.random() * CHARS.length)];
+          if (colored && Math.random() < .15) {
+            arr[k] = '<span style="color:' + state.color + ';">' + c + '</span>';
+          } else { arr[k] = c; }
+        });
+        if (colored) state.el.innerHTML = arr.join('');
+        else state.el.textContent = arr.join('');
+      } else if (n >= cut) {
+        state.el.textContent = finalText;
+      }
+    },
+    onComplete: function(){ state.el.textContent = finalText; }
+  });
+}
+if (!reduced) {
+  document.querySelectorAll('[data-scramble-hover="link"]').forEach(function(link){
+    var targets = link.querySelectorAll('[data-scramble-hover="target"]');
+    if (!targets.length) return;
+    var inNav = !!link.closest('.hh-navbar');
+    var states = Array.prototype.map.call(targets, function(t){
+      return { el: t, original: t.textContent, color: 'var(--hh-red-lift)', tween: null };
+    });
+    link.addEventListener('mouseenter', function(){
+      states.forEach(function(s){ scrambleTo(s, s.original, .65, !inNav); });
+    });
+  });
+}
+
+/* ---------- Cursor (reference: quickTo .4 power3.out, edge-aware, scramble label) ---------- */
+(function(){
+  var cursor = document.querySelector('.hh-cursor');
+  var labelEl = document.querySelector('[data-cursor-text-target]');
+  if (!cursor || !labelEl) return;
+  if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches || reduced) return;
+  var qx = gsap.quickTo(cursor, 'x', { duration:.4, ease:'power3.out' });
+  var qy = gsap.quickTo(cursor, 'y', { duration:.4, ease:'power3.out' });
+  var mx = 0, my = 0, current = null;
+  var labelState = { el: labelEl, color: 'var(--hh-white)', tween: null };
+  function refresh(){
+    var el = document.elementFromPoint(mx, my);
+    var hit = el ? el.closest('[data-cursor-hover]') : null;
+    var edge = cursor.getBoundingClientRect().right >= window.innerWidth - 8;
+    cursor.setAttribute('data-cursor', hit ? (edge ? 'active-edge' : 'active') : '');
+    if (hit !== current) {
+      var txt = hit ? (hit.getAttribute('data-cursor-text') || '') : '';
+      if (txt) scrambleTo(labelState, txt, .65, false); else labelEl.textContent = '';
+      current = hit;
+    }
+  }
+  window.addEventListener('mousemove', function(e){
+    mx = e.clientX; my = e.clientY; qx(mx); qy(my);
+    requestAnimationFrame(refresh);
+  });
+  window.addEventListener('scroll', function(){ requestAnimationFrame(refresh); }, { passive: true });
+})();
+
+/* ---------- Menu scale-pop (reference: open .1 + .2 expo.out offset -.05; close reverse) ---------- */
+(function(){
+  var wrapper = document.querySelector('.hh-menu-wrapper');
+  var menu = document.querySelector('.hh-menu');
+  if (!wrapper || !menu) return;
+  var animating = false;
+  function open(){
+    if (animating || menuOpen) return;
+    animating = true; menuOpen = true;
+    wrapper.classList.add('is-open');
+    document.body.classList.add('hh-loading');
+    if (lenis) lenis.stop();
+    gsap.timeline({ onComplete: function(){ animating = false; } })
+      .to(wrapper, { opacity:1, duration:.1, ease:'power4.out' })
+      .to(menu, { scale:1, duration:.2, ease:'expo.out' }, '>-0.05');
+  }
+  function close(){
+    if (animating || !menuOpen) return;
+    animating = true; menuOpen = false;
+    gsap.timeline({ onComplete: function(){
+        wrapper.classList.remove('is-open'); animating = false;
+        document.body.classList.remove('hh-loading');
+        if (lenis) lenis.start();
+      } })
+      .to(menu, { scale:0, duration:.2, ease:'expo.out' })
+      .to(wrapper, { opacity:0, duration:.1, ease:'power1.in' }, '>-0.05');
+  }
+  if (reduced) {
+    open = function(){ menuOpen = true; wrapper.classList.add('is-open'); gsap.set(wrapper,{opacity:1}); gsap.set(menu,{scale:1}); document.body.classList.add('hh-loading'); };
+    close = function(){ menuOpen = false; wrapper.classList.remove('is-open'); document.body.classList.remove('hh-loading'); };
+  }
+  document.querySelectorAll('[data-hh-menu="open"]').forEach(function(b){ b.addEventListener('click', open); });
+  document.querySelectorAll('[data-hh-menu="close"]').forEach(function(b){ b.addEventListener('click', close); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+})();
+
+/* ---------- Popups list (needed by swiper's slideChange; must exist first) ---------- */
+var popups = document.querySelectorAll('[data-hh-popup]');
+gsap.set(popups, { xPercent: -50, yPercent: -50 });
+function closeAllPopups(){ popups.forEach(function(p){ p.classList.remove('is-open'); }); }
+
+/* ---------- Events swiper (reference mod12: centered loop, wheel throttle, shuffle, [NN]) ---------- */
+(function(){
+  var el = document.querySelector('[data-hh-events-swiper]');
+  if (!el || typeof Swiper === 'undefined') return;
+  var fractionEl = document.querySelector('[data-hh-fraction]');
+  function pad(n){ return String(n + 1).padStart(2, '0'); }
+  function setIndices(sw){
+    ((sw && sw.slides) || []).forEach(function(slide){
+      var lab = slide.querySelector('[data-slider-index]');
+      var i = slide.getAttribute('data-swiper-slide-index');
+      if (lab && i !== null) lab.textContent = '[' + pad(parseInt(i, 10)) + ']';
+    });
+  }
+  function setFraction(sw){
+    if (fractionEl && sw) fractionEl.textContent = pad(sw.realIndex || 0) + ' / ' + String(document.querySelectorAll('.hh-event-card').length).padStart(2, '0');
+  }
+  var sw = new Swiper(el, {
+    watchOverflow: true, centeredSlides: true, loop: true, slideToClickedSlide: true,
+    spaceBetween: 20,
+    breakpoints: {
+      0:   { slidesPerView: 1.5, spaceBetween: 14 },
+      479: { slidesPerView: 1.2, spaceBetween: 14 },
+      768: { slidesPerView: 4, spaceBetween: 20 },
+      992: { slidesPerView: 4, spaceBetween: 20 }
+    },
+    on: {
+      update: function(s){ setIndices(s); },
+      slideChange: function(s){ setFraction(s); closeAllPopups(); }
+    }
+  });
+  setIndices(sw); setFraction(sw);
+  document.querySelectorAll('[data-hh-prev]').forEach(function(b){ b.addEventListener('click', function(){ sw.slidePrev(); }); });
+  document.querySelectorAll('[data-hh-next]').forEach(function(b){ b.addEventListener('click', function(){ sw.slideNext(); }); });
+  document.querySelectorAll('[data-hh-shuffle]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var count = document.querySelectorAll('.hh-event-card').length;
+      if (count <= 1) return;
+      var next, cur = sw.realIndex;
+      do { next = Math.floor(Math.random() * count); } while (next === cur);
+      sw.slideToLoop(next, 600);
+    });
+  });
+  /* wheel-nav on the section, 20px threshold, 400ms throttle (reference values) */
+  var section = document.querySelector('.hh-dagskra');
+  var lastWheel = 0;
+  if (section && !reduced) {
+    section.addEventListener('wheel', function(e){
+      if (el.contains(e.target)) return;
+      var horiz = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+      var d = horiz ? e.deltaX : e.deltaY;
+      if (Math.abs(d) < 20) return;
+      var now = Date.now();
+      if (now - lastWheel < 400) return;
+      lastWheel = now;
+      if (d > 0) sw.slideNext(); else sw.slidePrev();
+      if (horiz) e.preventDefault();
+    }, { passive: false });
+  }
+})();
+
+/* ---------- Draggable popups (reference mod12: inertia, bounds page, is-open) ---------- */
+if (typeof Draggable !== 'undefined') {
+  Draggable.create('[data-hh-popup]', { bounds: '.hh-page', inertia: true, trigger: '.hh-popup-bar' });
+}
+document.addEventListener('click', function(e){
+  var openBtn = e.target.closest('[data-popup-open]');
+  if (openBtn) {
+    /* reference behavior: the CTA only acts on the ACTIVE slide;
+       clicking a non-active card slides to it (slideToClickedSlide) instead */
+    var slide = openBtn.closest('.swiper-slide');
+    if (slide && !slide.classList.contains('swiper-slide-active')) return;
+    e.stopPropagation();
+    var i = openBtn.getAttribute('data-popup-open');
+    closeAllPopups();
+    var p = document.querySelector('[data-hh-popup][data-popup-i="' + i + '"]');
+    if (p) {
+      p.classList.add('is-open');
+      gsap.fromTo(p, { xPercent:-50, yPercent:-50, scale:.92, opacity:0 },
+                     { xPercent:-50, yPercent:-50, scale:1, opacity:1, duration: reduced ? 0 : .25, ease:'expo.out' });
+    }
+  }
+  if (e.target.closest('[data-popup-close]')) closeAllPopups();
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeAllPopups(); });
+
+/* ---------- Card-scale markers on every event poster (reference: markers on every thumbnail) ---------- */
+(function(){
+  var B = '<svg viewBox="0 0 10 10" fill="none"><path d="M0 0H10M0 0V10" stroke="currentColor" stroke-width="1.4"/></svg>';
+  var C = ['tl','tr','bl','br'];
+  var PATHS = {
+    tl:'M0 0H10M0 0V10', tr:'M0 0H10M10 0V10', bl:'M0 10H10M0 0V10', br:'M0 10H10M10 0V10'
+  };
+  document.querySelectorAll('.hh-event-art').forEach(function(art){
+    if (art.querySelector('.hh-thumb-markers')) return;
+    var wrap = document.createElement('span');
+    wrap.className = 'hh-thumb-markers';
+    wrap.setAttribute('aria-hidden', 'true');
+    wrap.innerHTML = C.map(function(c){
+      return '<span class="hh-tm ' + c + '"><svg viewBox="0 0 10 10" fill="none"><path d="' + PATHS[c] + '" stroke="currentColor" stroke-width="1.4"/></svg></span>';
+    }).join('');
+    art.appendChild(wrap);
+  });
+})();
+
+/* ---------- Live event count in nav (reference mod6: [N] from CMS list) ---------- */
+(function(){
+  var n = document.querySelectorAll('.hh-event-card').length;
+  document.querySelectorAll('[data-hh-event-count]').forEach(function(el){ el.textContent = '[' + n + ']'; });
+})();
+
+/* ---------- Footer accordion, mobile only (reference mod5: <=991, .4s expo.out) ---------- */
+(function(){
+  var BP = 991;
+  var cols = document.querySelectorAll('.hh-footer .footer_links');
+  if (!cols.length) return;
+  var state = { mode: null };
+  function bindMobile(){
+    cols.forEach(function(col){
+      var head = col.querySelector('.footer_links_header');
+      var list = col.querySelector('.footer_link-list');
+      if (!head || !list) return;
+      gsap.set(list, { height: 0, overflow: 'hidden' });
+      head.classList.remove('is-open');
+      if (!head.dataset.faBound) {
+        head.dataset.faBound = '1';
+        head.addEventListener('click', function(){
+          if (window.innerWidth > BP) return;
+          if (head.classList.contains('is-open')) {
+            gsap.to(list, { height: 0, duration: .4, ease: 'expo.out' });
+            head.classList.remove('is-open');
+          } else {
+            gsap.to(list, { height: 'auto', duration: .4, ease: 'expo.out' });
+            head.classList.add('is-open');
+          }
+        });
+      }
+    });
+  }
+  function unbindMobile(){
+    cols.forEach(function(col){
+      var list = col.querySelector('.footer_link-list');
+      if (list) gsap.set(list, { clearProps: 'height,overflow' });
+    });
+  }
+  function apply(){
+    var mode = window.innerWidth <= BP ? 'mobile' : 'desktop';
+    if (mode === state.mode) return;
+    state.mode = mode;
+    if (mode === 'mobile' && !reduced) bindMobile(); else unbindMobile();
+  }
+  var t; apply();
+  window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(apply, 150); });
+})();
+
+})();
+</script>
+</body>
+</html>

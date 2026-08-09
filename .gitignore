@@ -1,0 +1,5 @@
+_qa*.mjs
+_qa*.png
+_audit*.mjs
+_audit*.png
+node_modules
