@@ -1,0 +1,26 @@
+To: tomas@hljomaholl.is
+Subject: Hugmynd að nýrri vefsíðu fyrir Hljómahöll
+
+Sæll Tómas,
+
+Takk fyrir spjallið í símanum áðan.
+
+Hljómahöll er magnað hús. Rokksafn Íslands, Stapi og dagskrá sem heldur áfram allt haustið, allt undir sama þaki. Mér fannst vefurinn ekki alveg gera húsinu skil. Glugginn með póstlistanum opnast til dæmis strax yfir efnið, bæði í síma og tölvu.
+
+Svo ég settist niður og hannaði frumgerð að nýrri forsíðu fyrir ykkur. Þetta kostar ykkur ekki neitt og því fylgir engin skuldbinding.
+
+Hana má skoða hér hvenær sem er, og hún virkar vel í síma:
+https://sindrimar02.github.io/hljomaholl-preview/
+
+Hún er hönnuð fyrir símann fyrst, því þar skoðar fólk dagskrána. Miðasalan væri áfram á tix.is eins og hún er í dag, ég myndi ekki hrófla við því sem virkar. Dagskráin yrði áfram ykkar að uppfæra sjálf, þið bætið við viðburði eins og þið gerið núna.
+
+Næsta skref væri fyrirspurnarform fyrir salina, þar sem fólk velur dagsetningu, sal og fjölda gesta. Þá kæmi fyrirspurnin til ykkar tilbúin, í stað þess að sami tölvupósturinn sé skrifaður aftur og aftur.
+
+Ef ykkur líst vel á þetta gæti ég klárað vefinn í heild, en annars vona ég að þið hafið að minnsta kosti gaman af því að skoða hugmyndina.
+
+Endilega látið mig vita ef þið hafið áhuga.
+
+Bestu kveðjur,
+Sindri Már
+845 1758
+sndr-studio.pages.dev
